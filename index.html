@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Drafting</title>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="container"></div>
+    <div id="playersContainer"></div>
+        <div class="modal">
+            <h1>Team Details</h1>
+                
+            <div class="modal-actions">
+                <button type="button" id="btn-cancel">Cancel</button>
+            </div>
+        </div>
+        <div class="demo-container">
+            <div class="modal-control">
+                <button type="button">Edit Value</button>
+            </div>
+        </div>
+</body>
+</html>
+
+<script type="module">
+    import navbar from './navbar.js';
+
+    let container = document.getElementById('container');
+    container.innerHTML = navbar();
+
+    async function getPlayers() {
+        try{
+            let req = await fetch('https://www.balldontlie.io/api/v1/players');
+            let res = await req.json();
+            console.log(res);
+            appendPlayers(res.data);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    getPlayers();
+
+    function appendPlayers(players) {
+        
+        players.map((e) => {
+            let card = document.createElement('div');
+            card.setAttribute('id', 'playersCard');
+
+            let avatar = document.createElement('img');
+            avatar.setAttribute('id', 'avatar');
+            avatar.src = 'https://cdn.iconscout.com/icon/free/png-256/avatar-370-456322.png'
+
+            let fullName = document.createElement('h3');
+            fullName.setAttribute('id', 'playerName');
+            fullName.innerText = `Name: ${e.first_name} ${e.last_name}`;
+
+            let position = document.createElement('p');
+            position.setAttribute('id', 'playerPosition');
+            position.innerText = `Position: ${e.position}`;
+
+            let teamDetails = document.createElement('button');
+            teamDetails.setAttribute('id', 'teamDetailsBtn');
+            teamDetails.innerText = 'Team Details';
+            let modal = document.querySelector('.modal');
+            teamDetails.addEventListener('click', function(){
+                showModal(e);
+                console.log(e.team.city);
+                modal.style.display = 'block';
+            });
+
+            card.append(avatar, fullName, position, teamDetails);
+            document.getElementById('playersContainer').append(card);
+            
+        });
+    }
+
+    function showModal(e){
+
+        let modal = document.querySelector('.modal');
+        
+    let abbr = document.createElement('p');
+    abbr.innerText = e.team.abbreviation;
+
+    let city = document.createElement('p');
+    city.innerText = e.team.city;
+
+    let division = document.createElement('p');
+    division.innerText = e.team.division;
+
+    let conference = document.createElement('p');
+    conference.innerText = e.team.conference;
+
+    let teamName = document.createElement('p');
+    teamName.innerText = e.team.full_name;
+
+    modal.append(abbr, city, division, conference, teamName);
+        let cancelBtn = document.getElementById('btn-cancel');
+            cancelBtn.addEventListener('click', function(){
+                modal.style.display = 'none';
+            });
+    }
+</script>
